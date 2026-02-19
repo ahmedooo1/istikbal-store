@@ -1,4 +1,4 @@
-import { ArrowRight, Truck, ShieldCheck, Headphones, Sofa, Bed, Utensils, Briefcase } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Truck, ShieldCheck, Headphones, Sofa, Bed, Utensils, Briefcase } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { products, categories } from '../data/products';
@@ -50,13 +50,35 @@ export default function HomePage({ onNavigate }: HomePageProps) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 4000);
+    const restartInterval = () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = setInterval(() => {
+        setHeroIndex((prev) => (prev + 1) % heroSlides.length);
+      }, 4000);
+    };
+
+    restartInterval();
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
+
+  const restartInterval = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroSlides.length);
+    }, 4000);
+  };
+
+  const prevHero = () => {
+    setHeroIndex((h) => (h - 1 + heroSlides.length) % heroSlides.length);
+    restartInterval();
+  };
+
+  const nextHero = () => {
+    setHeroIndex((h) => (h + 1) % heroSlides.length);
+    restartInterval();
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -73,6 +95,21 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               style={{ transitionProperty: 'opacity' }}
             />
           ))}
+          {/* Prev / Next arrows */}
+          <button
+            onClick={prevHero}
+            aria-label="Précédent"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-900" />
+          </button>
+          <button
+            onClick={nextHero}
+            aria-label="Suivant"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
+          >
+            <ArrowRight className="w-5 h-5 text-slate-900" />
+          </button>
           {/* Overlay foncé subtil sur toute l'image */}
           <div className="absolute inset-0 bg-black/30" />
           {/* Overlay blanc léger pour garder la clarté du design */}
@@ -137,52 +174,33 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-20 bg-slate-50">
+      {/* Larger categories strip under hero (scrollable) */}
+      <section className="bg-white py-8 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl text-slate-900 mb-4">Nos Catégories</h2>
-            <p className="text-slate-600 text-lg">
-              Trouvez les meubles parfaits pour chaque pièce de votre maison
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => {
-              const Icon = categoryIcons[category.id as keyof typeof categoryIcons];
-              return (
-                <motion.button
-                  key={category.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
-                  onClick={() => onNavigate('products', category.id)}
-                  className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all text-left group"
-                >
-                  <div className="w-14 h-14 bg-gradient-to-br from-slate-900 to-slate-700 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-                  <h3 className="text-xl text-slate-900 mb-2">{category.name}</h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    {category.subcategories.length} sous-catégories
-                  </p>
-                  <div className="flex items-center gap-2 text-slate-900 group-hover:gap-4 transition-all">
-                    <span className="text-sm">Explorer</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </motion.button>
-              );
-            })}
+          <div className="overflow-x-auto no-scrollbar">
+            <div className="flex gap-8 items-center py-3 justify-center">
+              {categories.map((cat) => {
+                const sample = products.find(p => p.category === cat.id);
+                const img = sample ? sample.image : 'https://via.placeholder.com/360x360?text=Image';
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => onNavigate('products', cat.id)}
+                    className="flex-none w-36 md:w-44 text-center"
+                  >
+                    <div className="mx-auto w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-amber-400 shadow-sm flex items-center justify-center bg-white">
+                      <ImageWithFallback src={img} alt={cat.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="mt-3 text-sm md:text-base text-slate-700">{cat.name}</div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
+
+      {/* 'Nos Catégories' grid removed — using the larger strip above */}
 
       {/* Featured Products */}
       <section className="py-20 bg-white">

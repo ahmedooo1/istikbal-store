@@ -173,6 +173,12 @@
     line-height: 1.5;
   }
 
+  /* Ensure interactive elements show pointer cursor for better affordance */
+  a,
+  button {
+    cursor: pointer;
+  }
+
   input {
     font-size: var(--text-base);
     font-weight: var(--font-weight-normal);
