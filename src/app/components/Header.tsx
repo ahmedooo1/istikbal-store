@@ -53,7 +53,7 @@ export default function Header({ onNavigate, currentPage, selectedCategory }: He
             </div>
             <div className="hidden md:flex items-center gap-2">
               <Phone className="w-4 h-4" />
-              <span>+33 2 32 XX XX XX</span>
+              <span>+33 2 32 25 26 30</span>
             </div>
           </div>
           <div className="text-sm">
@@ -66,13 +66,15 @@ export default function Header({ onNavigate, currentPage, selectedCategory }: He
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <button 
-            onClick={() => onNavigate('home')}
-            className="text-2xl tracking-tight hover:opacity-80 transition-opacity"
+          <a
+            href="/"
+            onClick={(e) => { e.preventDefault(); onNavigate('home'); }}
+            aria-label="Logo"
+            className="flex items-center gap-3 text-2xl tracking-tight hover:opacity-80 transition-opacity"
           >
-            <span className="text-slate-900">ISTIKBAL</span>
+            <img src="/favicon.svg" alt="Meubles & Design" className="h-8 w-auto" />
             <span className="block text-xs text-slate-600 tracking-wide">MEUBLES & DESIGN</span>
-          </button>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">

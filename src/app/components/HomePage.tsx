@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { products, categories } from '../data/products';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import ProductImageCarousel from './ProductImageCarousel';
 
 interface HomePageProps {
   onNavigate: (page: string, category?: string, subcategory?: string, subsubcategory?: string, productId?: string) => void;
@@ -46,7 +47,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
   };
 
   const [heroIndex, setHeroIndex] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -210,10 +211,12 @@ export default function HomePage({ onNavigate }: HomePageProps) {
                 className="relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                  <ImageWithFallback
-                    src={product.image}
+                  <ProductImageCarousel
+                    images={product.gallery && product.gallery.length > 0 ? product.gallery : [product.image]}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    intervalMs={3500}
+                    small
                   />
 
                   <div className="absolute top-4 right-4 bg-white/90 text-slate-900 px-3 py-1 rounded-full text-sm font-semibold shadow">

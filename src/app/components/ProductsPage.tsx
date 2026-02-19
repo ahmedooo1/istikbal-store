@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Filter, Grid, List } from 'lucide-react';
 import { products, categories } from '../data/products';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import ProductImageCarousel from './ProductImageCarousel';
 
 interface ProductsPageProps {
   onNavigate: (page: string, category?: string, subcategory?: string, subsubcategory?: string, productId?: string) => void;
@@ -176,10 +177,12 @@ export default function ProductsPage({ onNavigate, selectedCategory, selectedSub
                     ? 'aspect-[4/3] overflow-hidden bg-slate-100'
                     : 'md:w-64 aspect-[4/3] overflow-hidden bg-slate-100'
                 }>
-                  <ImageWithFallback
-                    src={product.image}
+                  <ProductImageCarousel
+                    images={product.gallery && product.gallery.length > 0 ? product.gallery : [product.image]}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    intervalMs={3500}
+                    small
                   />
                 </div>
                 <div className="p-6 flex-1">

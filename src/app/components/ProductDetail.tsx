@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { products } from '../data/products';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import ProductImageCarousel from './ProductImageCarousel';
 
 interface ProductDetailProps {
   productId: string;
@@ -41,15 +42,13 @@ export default function ProductDetail({ productId, onNavigate }: ProductDetailPr
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-slate-50 rounded-2xl overflow-hidden p-4">
             <div className="aspect-[4/3] w-full overflow-hidden rounded-xl">
-              <ImageWithFallback src={product.image} alt={product.name} className="w-full h-full object-cover" />
-            </div>
-
-            <div className="mt-4 flex gap-3">
-              {product.gallery?.slice(0, 4).map((img, i) => (
-                <div key={i} className="w-20 h-20 rounded-lg overflow-hidden bg-white border">
-                  <ImageWithFallback src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
+              <ProductImageCarousel
+                images={product.gallery && product.gallery.length > 0 ? product.gallery : [product.image]}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                showThumbnails
+                intervalMs={4000}
+              />
             </div>
           </div>
 

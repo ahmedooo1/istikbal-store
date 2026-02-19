@@ -55,6 +55,8 @@ export default function Chatbot() {
     }
   ]);
   const [showQuestions, setShowQuestions] = useState(true);
+  const [faqOpen, setFaqOpen] = useState(true); // persistent collapse state for FAQ list
+  const [showTyping, setShowTyping] = useState(false); // show typing dots AFTER response
 
   const handleQuestionClick = (faq: typeof faqs[0]) => {
     const userMessage: Message = {
@@ -71,10 +73,19 @@ export default function Chatbot() {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage, botMessage]);
+    // add user message, show typing indicator, then append bot response
+    setMessages(prev => [...prev, userMessage]);
     setShowQuestions(false);
-    
-    setTimeout(() => setShowQuestions(true), 1000);
+    setShowTyping(true);
+
+    // simulate typing before showing the bot reply
+    setTimeout(() => {
+      setMessages(prev => [...prev, botMessage]);
+      setShowTyping(false);
+
+      // restore quick questions shortly after reply
+      setTimeout(() => setShowQuestions(true), 300);
+    }, 900);
   };
 
   const resetChat = () => {
@@ -91,17 +102,27 @@ export default function Chatbot() {
 
   return (
     <>
+      {/* inline styles for typing dots animation */}
+      <style>{`@keyframes chat-dot { 0% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(-6px); opacity: 1; } 100% { transform: translateY(0); opacity: .45; } }
+        .chat-dot { display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: #7c3aed; margin-right: 6px; animation: chat-dot 900ms ease-in-out infinite; }
+      `}</style>
       {/* Chat button */}
-      <motion.button
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-shadow z-50"
-      >
-        {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
-      </motion.button>
+        <motion.button
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Fermer le chat' : 'Ouvrir le chat'}
+          aria-expanded={isOpen}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-violet-600 text-white p-3 rounded-full shadow-2xl hover:shadow-xl transition-transform z-50"
+        >
+          <div className="relative w-9 h-9 flex items-center justify-center">
+            <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center transition-colors">
+              {isOpen ? <X className="w-5 h-5 text-white" /> : <MessageCircle className="w-5 h-5 text-white" />}
+            </div>
+          </div>
+        </motion.button>
 
       {/* Chat window */}
       <AnimatePresence>
@@ -117,12 +138,12 @@ export default function Chatbot() {
             {/* Header */}
             <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5" />
+                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/10">
+                  <div className="w-7 h-7 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center font-semibold">I</div>
                 </div>
                 <div>
                   <div className="font-medium">Assistant Istikbal</div>
-                  <div className="text-xs text-white/80">En ligne</div>
+                  <div className="text-xs text-white/80">Disponible — Réponse instantanée</div>
                 </div>
               </div>
               <button
@@ -135,7 +156,7 @@ export default function Chatbot() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-              {messages.map((message) => (
+              {messages.map((message, idx) => (
                 <div
                   key={message.id}
                   className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -143,7 +164,7 @@ export default function Chatbot() {
                   <div
                     className={`max-w-[80%] p-3 rounded-2xl ${
                       message.sender === 'user'
-                        ? 'bg-slate-900 text-white rounded-br-sm'
+                        ? 'bg-blue-600 text-white rounded-br-sm'
                         : 'bg-white text-slate-900 rounded-bl-sm shadow-sm'
                     }`}
                   >
@@ -159,12 +180,33 @@ export default function Chatbot() {
                   </div>
                 </div>
               ))}
+              {/* typing animation shown AFTER response when showTyping is true */}
+              {showTyping && (
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] p-3 rounded-2xl bg-white text-slate-900 rounded-bl-sm shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="chat-dot" style={{ animationDelay: '0ms' }} aria-hidden="true" />
+                      <span className="chat-dot" style={{ animationDelay: '150ms' }} aria-hidden="true" />
+                      <span className="chat-dot" style={{ animationDelay: '300ms' }} aria-hidden="true" />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Quick questions */}
-            {showQuestions && (
+            {faqOpen && showQuestions && (
               <div className="p-4 bg-white border-t border-slate-200 max-h-64 overflow-y-auto">
-                <p className="text-xs text-slate-600 mb-3">Questions fréquentes :</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-slate-600">Questions fréquentes :</p>
+                  <button
+                    onClick={() => setFaqOpen(false)}
+                    aria-expanded={faqOpen}
+                    className="text-xs text-slate-500 hover:text-slate-700"
+                  >
+                    Masquer
+                  </button>
+                </div>
                 <div className="space-y-2">
                   {faqs.map((faq, index) => (
                     <button
@@ -179,23 +221,22 @@ export default function Chatbot() {
               </div>
             )}
 
-            {/* Input (disabled, just for show) */}
-            <div className="p-4 bg-white border-t border-slate-200">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Choisissez une question ci-dessus..."
-                  disabled
-                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-400 rounded-full text-sm cursor-not-allowed"
-                />
-                <button
-                  disabled
-                  className="bg-slate-300 text-white p-2 rounded-full cursor-not-allowed"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
+            {/* collapsed FAQ header when faqOpen is false */}
+            {!faqOpen && (
+              <div className="p-3 bg-white border-t border-slate-200">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-600">Questions fréquentes :</p>
+                  <button
+                    onClick={() => setFaqOpen(true)}
+                    className="text-xs text-slate-500 hover:text-slate-700"
+                  >
+                    Afficher
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* input removed — chat is FAQ-driven */}
           </motion.div>
         )}
       </AnimatePresence>
