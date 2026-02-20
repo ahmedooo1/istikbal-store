@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { products, categories } from '../data/products';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import promoImg from '../assets/imgs/irender-fr.png';
 import ProductImageCarousel from './ProductImageCarousel';
 
 interface HomePageProps {
@@ -177,8 +178,8 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       {/* Larger categories strip under hero (scrollable) */}
       <section className="bg-white py-8 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="overflow-x-auto no-scrollbar">
-            <div className="flex gap-8 items-center py-3 justify-center">
+          <div className="overflow-x-auto no-scrollbar snap-x snap-mandatory">
+            <div className="flex gap-8 items-center py-3 justify-start md:justify-center pl-4 md:pl-0">
               {categories.map((cat) => {
                 const sample = products.find(p => p.category === cat.id);
                 const img = sample ? sample.image : 'https://via.placeholder.com/360x360?text=Image';
@@ -186,9 +187,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
                   <button
                     key={cat.id}
                     onClick={() => onNavigate('products', cat.id)}
-                    className="flex-none w-36 md:w-44 text-center"
+                    className="flex-none w-36 md:w-44 text-center snap-start"
                   >
-                    <div className="mx-auto w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-amber-400 shadow-sm flex items-center justify-center bg-white">
+                    <div className="mx-auto w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-blue-900 shadow-sm flex items-center justify-center bg-white">
                       <ImageWithFallback src={img} alt={cat.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="mt-3 text-sm md:text-base text-slate-700">{cat.name}</div>
@@ -200,7 +201,46 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
+{/* promotion section images 3D */}
+      <section className=" bg-slate-50">
+  <div className="w-full mx-auto">
+    <ImageWithFallback
+      src={promoImg}
+      alt="3D render of a modern bedroom set with a bed, nightstands and wardrobe"
+      className="mx-auto w-full shadow-lg"
+    />
+
+  </div>
+</section>
+  
+
+
+
+
+
+              
       {/* 'Nos Catégories' grid removed — using the larger strip above */}
+{/*   
+       <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl text-slate-900 mb-12 text-center">Nos Catégories</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {categories.map((cat) => {
+              const Icon = categoryIcons[cat.id] || Sofa;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => onNavigate('products', cat.id)}
+                  className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center gap-4 hover:shadow-xl transition"
+                >
+                  <Icon className="w-12 h-12 text-slate-900" />
+                  <div className="text-lg font-medium text-slate-900">{cat.name}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>  */}
 
       {/* Featured Products */}
       <section className="py-20 bg-white">

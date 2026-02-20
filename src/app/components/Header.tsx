@@ -73,7 +73,7 @@ export default function Header({ onNavigate, currentPage, selectedCategory }: He
             className="flex items-center gap-3 text-2xl tracking-tight hover:opacity-80 transition-opacity"
           >
             <img src="/favicon.svg" alt="Meubles & Design" className="h-8 w-auto" />
-            <span className="block text-xs text-slate-600 tracking-wide">MEUBLES & DESIGN</span>
+            <span className="block text-xs text-slate-600 tracking-wide">MEUBLES & Décoration</span>
           </a>
 
           {/* Desktop Navigation */}
